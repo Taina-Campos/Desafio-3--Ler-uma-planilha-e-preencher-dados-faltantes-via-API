@@ -1,0 +1,152 @@
+{
+  "name": "Desafio 3 -Ler uma planilha e preencher dados faltantes via API",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## DESAFIO 3 \nPreencher CEP's utilizando um API \n",
+        "height": 96,
+        "width": 176,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "8635ca95-5e54-4896-901f-69ee53896575",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -704,
+        48
+      ],
+      "id": "dd09ab99-0b2d-42f7-953f-3d06438350e3",
+      "name": "Inicio - Agendamento "
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Ml8RMa4OKQyyWS255qpcWUArKZqH02mxgef4_yhqZbA",
+          "mode": "list",
+          "cachedResultName": "Desafio 3 - Cidades da Bahia",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ml8RMa4OKQyyWS255qpcWUArKZqH02mxgef4_yhqZbA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "CEP ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ml8RMa4OKQyyWS255qpcWUArKZqH02mxgef4_yhqZbA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -480,
+        48
+      ],
+      "id": "24d31d3f-9603-4de3-bde7-9d4e709f5f08",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "wCHEZsJHQEa2dSFV",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pegamos todos os itens de entrada\nconst items = $input.all();\n\n// Filtramos somente os que têm campo CEP vazio\nconst filtrados = items.filter(item => {\n    const cep = item.json.cep;\n\n    return (\n        cep === \"\" ||      // vazio\n        cep === null ||    // nulo\n        cep === undefined  // inexistente\n    );\n});\n\n// Retornamos somente os itens filtrados\nreturn filtrados;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        48
+      ],
+      "id": "2d5a0b27-d556-4977-b4e9-7548f0e01b68",
+      "name": "Filtrar CEP ( Coluna Vazia)"
+    },
+    {
+      "parameters": {
+        "url": "=https://viacep.com.br/ws/{{ $json['CEP '] }}",
+        "options": {
+          "allowUnauthorizedCerts": true
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -32,
+        48
+      ],
+      "id": "5dcd985f-b486-4b9f-b34d-6539faa304b1",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Inicio - Agendamento ": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Filtrar CEP ( Coluna Vazia)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar CEP ( Coluna Vazia)": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "24753f73-ef84-4dda-b82e-f5f0ed26fad3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dce89234b77607802cca4d23c08590705425463a3bbaa5a49ada79b79ca9e894"
+  },
+  "id": "LQAzBMIdxKoDFeUI",
+  "tags": []
+}
